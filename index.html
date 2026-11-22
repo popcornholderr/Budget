@@ -2,6 +2,14 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ledger</title>
+<meta name="theme-color" content="#f5f5f7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Ledger">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
 :root{--ink:#0b0b0c;--mut:#86868b;--bg:#f5f5f7;--g:rgba(255,255,255,.55);--gb:rgba(255,255,255,.75);--ok:#2f9e63;--org:#e07b00;--bad:#d64545;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);color-scheme:light}
 *,*:before,*:after{box-sizing:inherit}
@@ -207,7 +215,7 @@ document.addEventListener('click',ev=>{
   else if(a==='p-add'){const k=el.dataset.k,l=P.dir==='lent';sheet(k==='p'?(l?'Lend more':'Borrow more'):(l?'Money received':'Money paid back'),[F('amt','Amount','','number'),F('note','Note (optional)')],v=>{P.en.push({id:uid(),k,amt:+v.amt||0,note:v.note,ts:Date.now()})})}
   else if(a==='edit-p')sheet('Edit person',[F('who','Name',P.who)],v=>{P.who=v.who||P.who},()=>{S.lend=S.lend.filter(q=>q!==P)});
   else if(a==='edit-en'){const x=P.en.find(q=>q.id===id);sheet('Edit entry',[F('amt','Amount',x.amt,'number'),F('note','Note',x.note)],v=>{x.amt=+v.amt||0;x.note=v.note},()=>{P.en=P.en.filter(q=>q!==x);if(!P.en.length)S.lend=S.lend.filter(q=>q!==P)})}
-  else if(a==='export')(async()=>{const j=JSON.stringify(S);try{const dl=await claude.use('downloads');if(!dl)throw 0;await dl.save({filename:'ledger-backup-'+new Date().toISOString().slice(0,10)+'.json',data:j});toast('Backup saved')}catch(x){if(x&&x.code==='declined')return;sheet('Copy your backup',[F('j','Select all, copy, and keep it somewhere safe',j)],()=>{})}})();
+  else if(a==='export')(async()=>{const j=JSON.stringify(S),nm='ledger-backup-'+new Date().toISOString().slice(0,10)+'.json';try{const dl=window.claude&&await claude.use('downloads');if(dl){await dl.save({filename:nm,data:j});toast('Backup saved');return}}catch(x){if(x&&x.code==='declined')return}try{const l=document.createElement('a');l.href=URL.createObjectURL(new Blob([j],{type:'application/json'}));l.download=nm;document.body.appendChild(l);l.click();l.remove();toast('Backup saved')}catch(x){sheet('Copy your backup',[F('j','Select all, copy, and keep it somewhere safe',j)],()=>{})}})();
   else if(a==='btab'){btab=id;render()}
   else if(a==='add-dep')sheet('Add money',[F('title','Title','','text','Salary'),F('amt','Amount','','number')],v=>{S.dep.push({id:uid(),title:v.title||'Deposit',amt:+v.amt||0,ts:Date.now()})});
   else if(a==='edit-dep'){const d=S.dep.find(q=>q.id===id);sheet('Edit deposit',[F('title','Title',d.title),F('amt','Amount',d.amt,'number')],v=>{d.title=v.title||d.title;d.amt=+v.amt||0},()=>{S.dep=S.dep.filter(q=>q!==d)})}
